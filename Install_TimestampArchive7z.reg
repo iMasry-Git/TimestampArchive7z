@@ -1,6 +1,8 @@
 Windows Registry Editor Version 5.00
 
 [HKEY_CLASSES_ROOT\Directory\shell\TimestampArchive7z]
+@="Timestamp Archive (7-Zip)"
+"Icon"="C:\\Program Files\\7-Zip\\7zFM.exe,0"
 
 [HKEY_CLASSES_ROOT\Directory\shell\TimestampArchive7z\command]
-@="powershell.exe -NonInteractive -command \"$v = '%v';$a = $v.split('\\');$l = $a.length-1;$na = $a[0..($l-1)];$od = $na -join '\\';$dn =$a[$l];$ts = $(get-date -f yyyy-MM-dd_hhmmss);$fn = -join('archive_', $dn , '_', $ts, '.zip');;set-alias sz \"$env:ProgramFiles\\7-Zip\\7z.exe\";sz a \"${od}\\${fn}\" $v\""
+@="powershell.exe -NoProfile -NonInteractive -WindowStyle Hidden -Command \"$v = ([Environment]::CommandLine -split '#::')[-1].Trim('\\\"').TrimEnd('\\'); $od = [IO.Path]::GetDirectoryName($v); $dn = [IO.Path]::GetFileName($v); $ts = Get-Date -Format 'yyyy-MM-dd_HHmmss'; $cp = [IO.Path]::Combine($od, \\\"archive_${dn}_${ts}.7z\\\"); $sz = if (Test-Path \\\"$env:ProgramFiles\\7-Zip\\7z.exe\\\") { \\\"$env:ProgramFiles\\7-Zip\\7z.exe\\\" } else { \\\"${env:ProgramFiles(x86)}\\7-Zip\\7z.exe\\\" }; & $sz a \\\"$cp\\\" \\\"$v\\\" #::%V\""

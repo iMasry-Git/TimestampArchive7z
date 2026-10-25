@@ -1,20 +1,36 @@
-$v = '%v'                                                   # input variable that comes from the Explorer context menu
-                                                            # e.g c:\temp\foo
-$a = $v.split('\')                                          # split the input by backslash                                                            
-$l = $a.length-1                                            # save the length-1 to get the last part "foo"
-$na = $a[0..($l-1)]                                         # create a new array that holds only c: and temp
-$od = $na -join '\'                                         # join the new array back to get c:\temp output directory
-$dn =$a[$l]                                                 # save last element (foo) from array to directory name variable
-$ts = $(get-date -f yyyy-MM-dd_hhmmss)                      # create a nice timestamp for the filename
-$fn = -join('archive_', $dn , '_', $ts, '.zip')             # create a nice filename like backup_oo_2016-09-28_0920.zip
-$alias = -join($env:ProgramFiles, '\', '7-Zip\7z.exe')      # powershell doesn't like to call 7z directly...
-set-alias sz $alias                                         # so ... let's create an alias for 7z
-$cp = -join($od, '\', $fn)                                  # create complete path using output directory and filename
-sz a  $cp $v                                                # run 7z command
+param(
+    [Parameter(Mandatory = $false, HelpMessage = "Folder path to archive")]
+    [string]$FolderPath
+)
 
-# finally merge it in one line (remove comments)
-# call it using 
-# powershell.exe -NonInteractive -command "[code without comments and line breaks]"
+# If invoked from the Windows Explorer context menu one-liner, extract path after '#::'
+if (-not $FolderPath) {
+    $parts = [Environment]::CommandLine -split '#::'
+    if ($parts.Count -gt 1) {
+        $FolderPath = $parts[-1]
+    }
+}
 
-# final oneliner to use in registry:
-# powershell.exe -NonInteractive -command "$v = '%v';$a = $v.split('\');$l = $a.length-1;$na = $a[0..($l-1)];$od = $na -join '\';$dn =$a[$l];$ts = $(get-date -f yyyy-MM-dd_hhmmss);$fn = -join('archive_', $dn , '_', $ts, '.zip');$alias = -join($env:ProgramFiles, '\', '7-Zip\7z.exe');set-alias sz $alias;$cp = -join($od, '\', $fn);sz a  $cp $v"
+$v = $FolderPath.Trim('"').TrimEnd('\')                     # Clean input path (e.g. C:\temp\foo)
+if (-not $v -or -not (Test-Path -LiteralPath $v)) {
+    Write-Error "Please provide a valid folder path. Usage: .\TimestampArchive7z.ps1 'C:\path\to\folder'"
+    exit 1
+}
+
+$od = [IO.Path]::GetDirectoryName($v)                       # Parent output directory (e.g. C:\temp)
+$dn = [IO.Path]::GetFileName($v)                            # Folder name (e.g. foo)
+$ts = Get-Date -Format 'yyyy-MM-dd_HHmmss'                  # 24-hour timestamp for chronological sorting
+$fn = "archive_${dn}_${ts}.7z"                              # Archive filename (e.g. archive_foo_2026-10-25_164500.7z)
+$cp = [IO.Path]::Combine($od, $fn)                          # Full destination archive path
+
+# Locate 7-Zip (64-bit or 32-bit fallback)
+$sz = if (Test-Path "$env:ProgramFiles\7-Zip\7z.exe") {
+    "$env:ProgramFiles\7-Zip\7z.exe"
+} else {
+    "${env:ProgramFiles(x86)}\7-Zip\7z.exe"
+}
+
+& $sz a "$cp" "$v"                                          # Create .7z archive safely with quoted paths
+
+# Registry one-liner used in Install_TimestampArchive7z.reg:
+# powershell.exe -NoProfile -NonInteractive -WindowStyle Hidden -Command "$v = ([Environment]::CommandLine -split '#::')[-1].Trim('\"').TrimEnd('\'); $od = [IO.Path]::GetDirectoryName($v); $dn = [IO.Path]::GetFileName($v); $ts = Get-Date -Format 'yyyy-MM-dd_HHmmss'; $cp = [IO.Path]::Combine($od, \"archive_${dn}_${ts}.7z\"); $sz = if (Test-Path \"$env:ProgramFiles\7-Zip\7z.exe\") { \"$env:ProgramFiles\7-Zip\7z.exe\" } else { \"${env:ProgramFiles(x86)}\7-Zip\7z.exe\" }; & $sz a \"$cp\" \"$v\" #::%V"
