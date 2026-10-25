@@ -1,3 +1,6 @@
 Windows Registry Editor Version 5.00
 
+[-HKEY_CURRENT_USER\Software\Classes\Directory\shell\TimestampArchive7z]
+[-HKEY_CURRENT_USER\Software\Classes\*\shell\TimestampArchive7z]
 [-HKEY_CLASSES_ROOT\Directory\shell\TimestampArchive7z]
+[-HKEY_CLASSES_ROOT\*\shell\TimestampArchive7z]

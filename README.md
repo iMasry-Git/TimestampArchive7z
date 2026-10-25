@@ -1,18 +1,18 @@
 # TimestampArchive7z
-Adds a **7-Zip: Archive with Timestamp** context menu entry for folders in Windows Explorer. This lets you create a timestamped `.7z` archive of any folder with two clicks.
+Adds a **7-Zip: Archive with Timestamp** context menu entry for both **files and folders** in Windows Explorer. This lets you create a timestamped `.7z` archive of any file or folder with two clicks.
 
 ## Idea
-When working on a folder, it is convenient to quickly create a timestamped backup archive before making changes. While 7-Zip provides a standard context menu, `TimestampArchive7z` automatically appends a clear 12-hour AM/PM timestamp (`archive_<FolderName>_<yyyy-MM-dd_hh-mm-ss-tt>.7z`, e.g. `archive_MyFolder_2026-10-25_05-12-33-PM.7z`) in a single click.
+When working on files or folders, it is convenient to quickly create a timestamped backup archive before making changes. While 7-Zip provides a standard context menu, `TimestampArchive7z` automatically appends a clear 12-hour AM/PM timestamp (`archive_<Name>_<yyyy-MM-dd_hh-mm-ss-tt>.7z`, e.g. `archive_MyFolder_2026-10-25_05-12-33-PM.7z`) in a single click.
 
 ## Features
+* **Works on Files & Folders:** Registers context menu entries for both files (`*\shell`) and folders (`Directory\shell`).
 * **Clear 12-Hour AM/PM Timestamps:** Uses `yyyy-MM-dd_hh-mm-ss-tt` (e.g. `05-12-33-PM`) so archives clearly show the exact time with `AM`/`PM`.
 * **Native `.7z` Compression:** Creates `.7z` archives using 7-Zip (`64-bit` with automatic `32-bit` fallback).
-* **Safe Path Handling:** Properly handles folder paths containing spaces, apostrophes (`'`), brackets (`[]`), dollar signs (`$`), and ampersands (`&`).
+* **Safe Path Handling:** Properly handles paths containing spaces, apostrophes (`'`), brackets (`[]`), dollar signs (`$`), and ampersands (`&`).
 * **Clean Context Menu Integration:** Displays **7-Zip: Archive with Timestamp** with the 7-Zip icon and runs silently without flashing an interactive PowerShell prompt.
 
 ## Prerequisites
 * Windows 11
-* Administrator privileges to import `Install_TimestampArchive7z.reg`
 * PowerShell 5.1+
 * [7-Zip](https://www.7-zip.org/) installed in `C:\Program Files\7-Zip` or `C:\Program Files (x86)\7-Zip`
 
@@ -24,18 +24,20 @@ When working on a folder, it is convenient to quickly create a timestamped backu
 
 ## Usage
 
-### Via Windows Explorer Context Menu
+### Via Windows Explorer Context Menu (Windows 11)
 1. Open Windows Explorer.
-2. Right-click any folder (click *Show more options* or hold `Shift` + right-click).
+2. Right-click any **file or folder** and select **Show more options** (or hold **`Shift` + Right-click** to open the full menu directly).
 3. Click **7-Zip: Archive with Timestamp**.
-4. A timestamped `.7z` archive (`archive_<FolderName>_<yyyy-MM-dd_hh-mm-ss-tt>.7z`) will be created in the same parent directory.
+4. A timestamped `.7z` archive (`archive_<Name>_<yyyy-MM-dd_hh-mm-ss-tt>.7z`) will be created in the same parent directory.
 
 ### Via PowerShell CLI
 You can also run `TimestampArchive7z.ps1` directly from PowerShell:
 ```powershell
-.\TimestampArchive7z.ps1 "C:\path\to\folder"
+.\TimestampArchive7z.ps1 "C:\path\to\file-or-folder"
 ```
 
 ## Troubleshooting
+* **Don't see the item on the first Windows 11 right-click menu?**
+  Windows 11 places classic Registry context menu entries inside **Show more options** (`Shift` + Right-click).
 * **Nothing happens when clicking the context menu item:**
   Ensure 7-Zip is installed at `C:\Program Files\7-Zip\7z.exe` (or `C:\Program Files (x86)\7-Zip\7z.exe`). To inspect errors interactively, temporarily replace `-NonInteractive -WindowStyle Hidden` with `-NoExit` in `Install_TimestampArchive7z.reg` and re-import it.
