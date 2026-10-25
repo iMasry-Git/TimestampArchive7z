@@ -1,8 +1,8 @@
 Windows Registry Editor Version 5.00
 
 [HKEY_CLASSES_ROOT\Directory\shell\TimestampArchive7z]
-@="Timestamp Archive (7-Zip)"
+@="7-Zip: Archive with Timestamp"
 "Icon"="C:\\Program Files\\7-Zip\\7zFM.exe,0"
 
 [HKEY_CLASSES_ROOT\Directory\shell\TimestampArchive7z\command]
-@="powershell.exe -NoProfile -NonInteractive -WindowStyle Hidden -Command \"$v = ([Environment]::CommandLine -split '#::')[-1].Trim('\\\"').TrimEnd('\\'); $od = [IO.Path]::GetDirectoryName($v); $dn = [IO.Path]::GetFileName($v); $ts = Get-Date -Format 'yyyy-MM-dd_HHmmss'; $cp = [IO.Path]::Combine($od, \\\"archive_${dn}_${ts}.7z\\\"); $sz = if (Test-Path \\\"$env:ProgramFiles\\7-Zip\\7z.exe\\\") { \\\"$env:ProgramFiles\\7-Zip\\7z.exe\\\" } else { \\\"${env:ProgramFiles(x86)}\\7-Zip\\7z.exe\\\" }; & $sz a \\\"$cp\\\" \\\"$v\\\" #::%V\""
+@="powershell.exe -NoProfile -NonInteractive -WindowStyle Hidden -Command \"$v = ([Environment]::CommandLine -split '#::')[-1].Trim('\\\"').TrimEnd('\\'); $od = [IO.Path]::GetDirectoryName($v); $dn = [IO.Path]::GetFileName($v); $ts = [DateTime]::Now.ToString('yyyy-MM-dd_hh-mm-ss-tt', [Globalization.CultureInfo]::InvariantCulture); $cp = [IO.Path]::Combine($od, \\\"archive_${dn}_${ts}.7z\\\"); $sz = if (Test-Path \\\"$env:ProgramFiles\\7-Zip\\7z.exe\\\") { \\\"$env:ProgramFiles\\7-Zip\\7z.exe\\\" } else { \\\"${env:ProgramFiles(x86)}\\7-Zip\\7z.exe\\\" }; & $sz a \\\"$cp\\\" \\\"$v\\\" #::%V\""
